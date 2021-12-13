@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt")
 const createToken = require("./utils/token")
 const auth = require("./middleware/auth")
 
-const urlbd = "Connection String";
+const urlbd = "connection string";
 
 mongoose.connect(urlbd, { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => console.log('conectado ao DB...'))
@@ -68,24 +68,38 @@ app.post("/api/user/login",(req,res)=>{
 
 
 app.put("/api/user/atualizar/:id", cors(confCors),auth,(req, res) => {
-    Usuario.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true },
-        (erro, rs) => {
-            if (erro) {
-                return res.status(400).send({
-                    output: "ERRO ao atualizar",
-                    error: erro
-                })
-            } else {
-                res.status(200).send({
-                    output: "ATUALIZOU",
-                    payload: rs
-                })
+  
+    // Se enviar a senha na requisição ela será criptografada
+    if(req.body.senha){
+        bcrypt.hash(req.body.senha,10,(erro,encrypt)=>{
+            req.body.senha = encrypt
+            Atualizar()
+        })
+    }else{
+        Atualizar()
+    }
+
+    function Atualizar(){
+
+        Usuario.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true },
+            (erro, rs) => {
+                if (erro) {
+                    return res.status(400).send({
+                        output: "ERRO ao atualizar",
+                        error: erro
+                    })
+                } else {
+                    res.status(200).send({
+                        output: "ATUALIZOU",
+                        payload: rs
+                    })
+                }
             }
-        }
-    )
+        )
+    }
 })
 
 app.delete("/api/user/delete/:id", cors(confCors), (req, res) => {

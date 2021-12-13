@@ -12,10 +12,10 @@ const table = new mongoose.Schema({
 
 
 table.pre("save",function(next){
-    let cliente = this;
-    if(!cliente.isModified('senha')) return next()
-    bcrypt.hash(cliente.senha,10,(erro,encrypt)=>{
-        cliente.senha = encrypt
+    let user = this;
+    if(!user.isModified('senha')) return next()
+    bcrypt.hash(user.senha,10,(erro,encrypt)=>{
+        user.senha = encrypt
         return next()
     })
 })
